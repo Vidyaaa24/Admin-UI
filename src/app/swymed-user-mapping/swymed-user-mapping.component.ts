@@ -89,7 +89,7 @@ export class SwymedUserMappingComponent implements OnInit {
     this.editMode = false;
     this.dataToBeEdit = undefined;
     this.getAllDesignations();
-    this.getSwymedDomain();
+    this.getvideoConsultationDomain();
   }
 
   /*
@@ -150,14 +150,14 @@ export class SwymedUserMappingComponent implements OnInit {
   /*
   * To fetch swymed domain
   */
-  getSwymedDomain() {
-    this.swymedUserConfigService.getSwymedDomain(this.serviceProviderID).subscribe((domainResponse) => {
+  getvideoConsultationDomain() {
+    this.swymedUserConfigService.getvideoConsultationDomain(this.serviceProviderID).subscribe((domainResponse) => {
       if (domainResponse != undefined) {
         this.domainList = domainResponse;
       }
       if (this.dataToBeEdit != undefined) {
         let editDomain = this.domainList.filter((editDomainValue) => {
-          if (this.dataToBeEdit.swymedDomain != undefined && this.dataToBeEdit.swymedDomain == editDomainValue.swymedDoamin) {
+          if (this.dataToBeEdit.videoConsultationDomain != undefined && this.dataToBeEdit.videoConsultationDomain == editDomainValue.swymedDoamin) {
             return editDomainValue;
           }
         })[0]
@@ -177,9 +177,9 @@ export class SwymedUserMappingComponent implements OnInit {
   saveUserMapping(formValue) {
     let saveReqObj = {
       "userID": formValue.username.userID,
-      "swymedEmailID": formValue.emailID,
-      "swymedPassword": formValue.password,
-      "swymedDomain": formValue.domain.swymedDoamin,
+      "videoConsultationEmailID": formValue.emailID,
+      "videoConsultationPassword": formValue.password,
+      "videoConsultationDomain": formValue.domain.swymedDoamin,
       "createdBy": this.createdBy,
 
     }
@@ -227,9 +227,9 @@ export class SwymedUserMappingComponent implements OnInit {
     this.showTable = false;
     this.getAllDesignations();
     this.getUserNameBasedOnDesig(editValue.designationID);
-    this.getSwymedDomain();
-    this.emailID = editValue.swymedEmailID;
-    this.password = editValue.swymedPassword;
+    this.getvideoConsultationDomain();
+    this.emailID = editValue.videoConsultationEmailID;
+    this.password = editValue.videoConsultationPassword;
 
   }
   /*
@@ -238,11 +238,11 @@ export class SwymedUserMappingComponent implements OnInit {
 
   updateUsermapping(formValue) {
     let updateObj = {
-      "swymedEmailID": formValue.emailID,
-      "swymedPassword": formValue.password,
-      "swymedDomain": this.dataToBeEdit.swymedDomain,
+      "videoConsultationEmailID": formValue.emailID,
+      "videoConsultationPassword": formValue.password,
+      "videoConsultationDomain": this.dataToBeEdit.videoConsultationDomain,
       "userID": this.dataToBeEdit.userID,
-      "userSwymedMapID": this.dataToBeEdit.userSwymedMapID,
+      "userVideoConsultationMapID": this.dataToBeEdit.userVideoConsultationMapID,
       "modifiedBy": this.createdBy
     }
     this.swymedUserConfigService.updateUserDetails(updateObj).subscribe((updateResponse) => {
@@ -282,7 +282,7 @@ export class SwymedUserMappingComponent implements OnInit {
       }
       this.dialogService.confirm('Confirm', "Are you sure you want to " + this.status + "?").subscribe((res) => {
         if (res) {
-          this.swymedUserConfigService.mappingActivationDeactivation(item.userSwymedMapID, flag, item.modifiedBy)
+          this.swymedUserConfigService.mappingActivationDeactivation(item.userVideoConsultationMapID, flag, item.modifiedBy)
             .subscribe((res) => {
               console.log('Activation or deactivation response', res);
               this.dialogService.alert(this.status + "d successfully", 'success');
@@ -315,7 +315,7 @@ export class SwymedUserMappingComponent implements OnInit {
       this.filteredswymedUserDetails = [];
       this.swymedUserDetails.forEach((item) => {
         for (let key in item) {
-          if (key == 'userName' || key == 'swymedDomain' || key == 'designationName') {
+          if (key == 'userName' || key == 'videoConsultationDomain' || key == 'designationName') {
             let value: string = '' + item[key];
             if (value.toLowerCase().indexOf(searchTerm.toLowerCase()) >= 0) {
               this.filteredswymedUserDetails.push(item); break;
