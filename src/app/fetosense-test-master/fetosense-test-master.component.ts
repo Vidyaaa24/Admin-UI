@@ -57,7 +57,7 @@ export class FetosenseTestMasterComponent implements OnInit {
   addedFetosenseTests: any = [];
   fetosenseTest: any ={};
   confirmMessage: any;
-  fetosenseTestID : any;
+  foetalMonitorTestID : any;
   searchTest: any;
   state: any;
   constructor(public providerAdminTestMasterService: ProviderAdminFetosenseTestMasterService,
@@ -199,12 +199,12 @@ export class FetosenseTestMasterComponent implements OnInit {
       this.showTestCreationForm = true;
       this.showWorklist = false;
       this.selectedTest = roleObj.testName;
-      this.fetosenseTestID = roleObj.fetosenseTestID;
+      this.foetalMonitorTestID = roleObj.foetalMonitorTestID;
       this.showFetosenseTestMaster= false;
     }
     updateTestChanges(){
       let fetosenseTest = {
-        "fetosenseTestID": this.fetosenseTestID,
+        "foetalMonitorTestID": this.foetalMonitorTestID,
         'testName': (this.test !== undefined && this.test !== null) ? this.test.trim() : null,
         'testDesc': (this.description !== undefined && this.description !== null) ? this.description.trim(): null,
         'createdBy': this.commonDataService.uname,
@@ -224,7 +224,7 @@ export class FetosenseTestMasterComponent implements OnInit {
     }
     deleteTest(fetoID, flag){
       let fetosenseTest = {
-        "fetosenseTestID": fetoID,
+        "foetalMonitorTestID": fetoID,
         "deleted": flag
       } 
       if (flag) {
