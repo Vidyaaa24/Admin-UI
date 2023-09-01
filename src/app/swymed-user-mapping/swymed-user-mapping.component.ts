@@ -89,7 +89,7 @@ export class SwymedUserMappingComponent implements OnInit {
     this.editMode = false;
     this.dataToBeEdit = undefined;
     this.getAllDesignations();
-    this.getvideoConsultationDomain();
+    this.getVideoConsultationDomain();
   }
 
   /*
@@ -150,8 +150,8 @@ export class SwymedUserMappingComponent implements OnInit {
   /*
   * To fetch swymed domain
   */
-  getvideoConsultationDomain() {
-    this.swymedUserConfigService.getvideoConsultationDomain(this.serviceProviderID).subscribe((domainResponse) => {
+  getVideoConsultationDomain() {
+    this.swymedUserConfigService.getVideoConsultationDomain(this.serviceProviderID).subscribe((domainResponse) => {
       if (domainResponse != undefined) {
         this.domainList = domainResponse;
       }
@@ -227,7 +227,7 @@ export class SwymedUserMappingComponent implements OnInit {
     this.showTable = false;
     this.getAllDesignations();
     this.getUserNameBasedOnDesig(editValue.designationID);
-    this.getvideoConsultationDomain();
+    this.getVideoConsultationDomain();
     this.emailID = editValue.videoConsultationEmailID;
     this.password = editValue.videoConsultationPassword;
 
