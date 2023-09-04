@@ -106,7 +106,9 @@
       <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 m-t-15">
         <!-- <md-input-container class="hide_underline" [style.width]="'100%'">
           <input mdInput style="display:none"> -->
-        <md-select placeholder="Select Serviceline" [style.width]="'100%'" [(ngModel)]="Serviceline" name="serviceline" (change)="getStates(Serviceline.serviceID,Serviceline.isNational);setIsNational(Serviceline.isNational);showInboundOutbound(Serviceline.serviceName);allowSingleRoleOnlyForECD(Serviceline.serviceName);showBlockDrop(Serviceline.serviceName);resetBlockVillageFields();allowSingleTimeHWC(Serviceline.serviceName,User.userID)"
+
+        <md-select placeholder="Select Serviceline" [style.width]="'100%'" [(ngModel)]="Serviceline" name="serviceline" (change)="getStates(Serviceline.serviceID,Serviceline.isNational);setIsNational(Serviceline.isNational);showInboundOutbound(Serviceline.serviceName);allowSingleRoleOnlyForECD(Serviceline.serviceName);showBlockDrop(Serviceline.serviceName);resetBlockVillageFields();allowSingleTimeHWC(Serviceline.serviceName,User.userID);eSanjeevaniSaveFunction('Serviceline', Serviceline);"
+
           required>
           <md-option *ngFor="let item of services_array" [value]="item">
             {{item.serviceName}}
@@ -182,13 +184,18 @@
       <div *ngIf="!singleSelectForEcd" class="col-xs-12 col-sm-6 col-md-4 col-lg-3 m-t-15">
         <!-- <md-input-container class="hide_underline" [style.width]="'100%'">
           <input mdInput style="display:none"> -->
-        <md-select placeholder="Select Role" [style.width]="'100%'" [multiple]="true" [(ngModel)]="Role" name="role" required>
+        <md-select placeholder="Select Role" [style.width]="'100%'" [multiple]="true" [(ngModel)]="Role" name="role" required (change)="eSanjeevaniSaveFunction('Role', Role);">
           <md-option *ngFor="let item of availableRoles" [value]="item">
             {{item.roleName}}
           </md-option>
         </md-select>
         <!-- </md-input-container> -->
       </div>
+
+      <div *ngIf="eSanjivaniFlag" class="col-xs-6 col-sm-4 col-md-4 col-lg-3 m-t-35">
+        <md-checkbox color="primary" [(ngModel)]="eSanjeevani" name="eSanjeevani" [checked]="isSanjeevani" (change)="onESanjeevaniChange($event)">ESanjeevani</md-checkbox>
+      </div>
+
       <div *ngIf="singleSelectForEcd" class="col-xs-12 col-sm-6 col-md-4 col-lg-3 m-t-15">
         <!-- <md-input-container class="hide_underline" [style.width]="'100%'">
           <input mdInput style="display:none"> -->
@@ -234,6 +241,7 @@
             <th width="15%">Role</th>
             <th width="15%">Inbound</th>
             <th width="15%">Outbound</th>
+            <th width="15%">ESanjeevani</th>
             <th width="10%">Delete</th>
           </tr>
         </thead>
@@ -258,6 +266,7 @@
             </td> -->
             <td>{{item.Inbound}}</td>
             <td>{{item.Outbound}}</td>
+            <td>{{item.isSanjeevani}}</td>
             <td>
               <md-icon class="cursorPointer" mdTooltip="delete" (click)="deleteRow(bufferArray.indexOf(item), item.serviceID, item.providerServiceMapID, item.userID)">delete</md-icon>
             </td>
@@ -308,7 +317,7 @@
       <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 m-t-15">
         <!-- <md-input-container class="hide_underline" [style.width]="'100%'">
           <input mdInput style="display:none"> -->
-        <md-select placeholder="Select Serviceline" [style.width]="'100%'" [(ngModel)]="serviceID_duringEdit" name="serviceID" (change)="refresh2();"
+        <md-select placeholder="Select Serviceline" [style.width]="'100%'" [(ngModel)]="serviceID_duringEdit" name="serviceID" (change)="refresh2();eSanjeevaniEditSaveFunction(item.serviceName,roleID_duringEdit);"
           required>
           <md-option *ngFor="let item of services_array" [value]="item.serviceID" (click)="getProviderStates_duringEdit(item.serviceID,item.isNational);setIsNational_edit(item.isNational);showInboundOutboundEdit(item.serviceName,roleID_duringEdit);showEditBlockDrop(item.serviceName);">
             {{item.serviceName}}
@@ -383,12 +392,16 @@
       <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 m-t-15">
         <!-- <md-input-container class="hide_underline" [style.width]="'100%'">
           <input mdInput style="display:none"> -->
-        <md-select placeholder="Select Role" [style.width]="'100%'" [(ngModel)]="roleID_duringEdit" name="role" (change)="showInboundOutboundEdit(serviceID_duringEdit,roleID_duringEdit);" required>
+        <md-select placeholder="Select Role" [style.width]="'100%'" [(ngModel)]="roleID_duringEdit" name="role" (change)="showInboundOutboundEdit(serviceID_duringEdit,roleID_duringEdit);eSanjeevaniEditSaveFunction(serviceID_duringEdit,roleID_duringEdit);" required>
           <md-option *ngFor="let item of availableRoles" [value]="item.roleID">
             {{item.roleName}}
           </md-option>
         </md-select>
         <!-- </md-input-container> -->
+      </div>
+
+      <div *ngIf="eSanjivaniEditFlag" class="col-xs-6 col-sm-4 col-md-4 col-lg-3 m-t-35">
+        <md-checkbox color="primary" [(ngModel)]="eSanjeevaniEdit" name="eSanjeevaniEdit" [checked]="eSanjeevaniEdit" (change)="onESanjeevaniChange($event)">ESanjeevani</md-checkbox>
       </div>
 
       <div *ngIf="showInOutBoundEdit" class="col-xs-6 col-sm-4 col-md-4 col-lg-3 m-t-35">
