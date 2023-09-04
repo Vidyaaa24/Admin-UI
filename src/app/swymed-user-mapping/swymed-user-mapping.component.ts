@@ -157,7 +157,7 @@ export class SwymedUserMappingComponent implements OnInit {
       }
       if (this.dataToBeEdit != undefined) {
         let editDomain = this.domainList.filter((editDomainValue) => {
-          if (this.dataToBeEdit.videoConsultationDomain != undefined && this.dataToBeEdit.videoConsultationDomain == editDomainValue.swymedDoamin) {
+          if (this.dataToBeEdit.videoConsultationDomain != undefined && this.dataToBeEdit.videoConsultationDomain == editDomainValue.videoConsultationDoamin) {
             return editDomainValue;
           }
         })[0]
@@ -179,7 +179,7 @@ export class SwymedUserMappingComponent implements OnInit {
       "userID": formValue.username.userID,
       "videoConsultationEmailID": formValue.emailID,
       "videoConsultationPassword": formValue.password,
-      "videoConsultationDomain": formValue.domain.swymedDoamin,
+      "videoConsultationDomain": formValue.domain.videoConsultationDoamin,
       "createdBy": this.createdBy,
 
     }
