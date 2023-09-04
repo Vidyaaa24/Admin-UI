@@ -82,6 +82,7 @@ export class WorkLocationMappingComponent implements OnInit {
 
   isNational = false;
   blockFlag: boolean = false;
+
   villageFlag: boolean = false;
   searchTerm: any;
   enableEditBlockFlag: boolean = false;
@@ -91,6 +92,8 @@ export class WorkLocationMappingComponent implements OnInit {
   eSanjivaniEditFlag: boolean = false;
   esanjFlag: boolean = false;
   eSanjeevaniEdit: boolean = false;
+  foundDuplicate:boolean =false;
+
 
 
 
@@ -329,7 +332,7 @@ export class WorkLocationMappingComponent implements OnInit {
     });
     this.availableRoles = temp.slice();
 
-    // filtering supervisor / TC specialist roles if other roles are mapped to the user
+    // fi.ltering supervisor / TC specialist roles if other roles are mapped to the user
     if (this.bufferArray.length > 0) {
       this.bufferArray.forEach((bufferList) => {
         if (bufferList.userID == userID && bufferList.providerServiceMapID == providerServiceMapID) {
@@ -505,7 +508,8 @@ export class WorkLocationMappingComponent implements OnInit {
     // this.getUserName(this.serviceProviderID);
   }
 
-  activate(serviceID, uSRMappingID, userDeactivated, providerServiceMappingDeleted) {
+  activate(userID,serviceID, uSRMappingID, userDeactivated, providerServiceMappingDeleted) {
+    
     if (userDeactivated) {
       this.alertService.alert('User is inactive');
     }
@@ -536,7 +540,47 @@ export class WorkLocationMappingComponent implements OnInit {
                 });
           }
         });
-      } else {
+      } 
+      else if(serviceID == 9){
+       let result = false
+       this.foundDuplicate = false;
+          if( this.mappedWorkLocationsList.length!=0){
+            this.mappedWorkLocationsList.forEach((mappedWorkLocations) => {
+              if(serviceID === 9 && serviceID === mappedWorkLocations.serviceID &&  mappedWorkLocations.userID == userID){
+                if (!mappedWorkLocations.userServciceRoleDeleted) {
+                  this.foundDuplicate = true;
+                   this.alertService.alert("Service Already Actiavted")
+                }
+              } 
+            });
+
+          }
+          if(this.foundDuplicate == false){
+            this.alertService.confirm('Confirm', "Are you sure you want to Activate?").subscribe(response => {
+              if (response) {
+                const object = {
+                  'uSRMappingID': uSRMappingID,
+                  'deleted': false
+                };
+    
+                this.worklocationmapping.DeleteWorkLocationMapping(object)
+                  .subscribe(response => {
+                    if (response) {
+                      this.alertService.alert('Activated successfully', 'success');
+                      /* refresh table */
+                      this.searchTerm=null;
+                      this.getAllMappedWorkLocations();
+                    }
+                  },
+                    err => {
+                      console.log('error', err);
+                    });
+              }
+            });
+          }
+
+      }
+      else {
         this.alertService.confirm('Confirm', "Are you sure you want to Activate?").subscribe(response => {
           if (response) {
             const object = {
@@ -1278,7 +1322,9 @@ export class WorkLocationMappingComponent implements OnInit {
           console.log(response, 'get all districts success handeler');
           this.districts_array = response;
           this.district_duringEdit = parseInt(this.edit_Details.workingDistrictID, 10);
-          if (this.edit_Details.serviceName === "FLW") {
+
+           if(this.edit_Details.serviceName === "FLW" || this.edit_Details.serviceName === "HWC"){
+
             this.getEditBlockPatchMaster(this.district_duringEdit);
             // this.ServiceEditblock = this.edit_Details.blockID;
             // this.getEditVillagePatchMaster(this.ServiceEditblock);
@@ -1544,9 +1590,11 @@ export class WorkLocationMappingComponent implements OnInit {
       this.showInOutBoundEdit = false;
   }
 
-  showBlockDrop(serviceline) {
 
-    if (serviceline === "FLW") {
+  showBlockDrop(serviceline){
+    
+    if(serviceline === "FLW" || serviceline === "HWC" ){
+
       this.blockFlag = true;
       this.villageFlag = true;
     }
@@ -1556,9 +1604,11 @@ export class WorkLocationMappingComponent implements OnInit {
     }
   }
 
-  showEditBlockDrop(serviceID_duringEdit) {
 
-    if (serviceID_duringEdit != "FLW") {
+  showEditBlockDrop(serviceID_duringEdit){
+    
+    if(serviceID_duringEdit != "FLW" || serviceID_duringEdit != "HWC"){
+
       this.enableEditBlockFlag = false;
       this.enableEditVillageFlag = false;
       this.ServiceEditblock = null;
@@ -1775,6 +1825,54 @@ export class WorkLocationMappingComponent implements OnInit {
       this.isSanjeevani = true;
     }
   }
+  allowSingleTimeHWC(serviceLine,userID)
+  {
+    let value=this.checkHWCMappedInBufferTable(serviceLine,userID)
+    let value2=this.checkHWCMappedInMainTable(serviceLine,userID)
+
+    if(value == true || value2 == true){
+      this.Serviceline = {}
+     this.alertService.alert("Already Mapped")
+     
+     
+    }
+  
+
+
+}
+checkHWCMappedInMainTable(serviceLine,userID){
+  let result=false;
+  if(serviceLine != undefined && serviceLine !=null && userID!= undefined && userID !=null){
+    if( this.mappedWorkLocationsList.length!=0){
+      this.mappedWorkLocationsList.forEach((mappedWorkLocations) => {
+        if(serviceLine === "HWC" && serviceLine ===mappedWorkLocations.serviceName &&  mappedWorkLocations.userID == userID){
+          if (!mappedWorkLocations.userServciceRoleDeleted) {
+           result=true
+          }
+        } 
+      });
+    } 
+    
+  }
+  return result;
+}
+
+  checkHWCMappedInBufferTable(serviceLine,userID){
+    let result=false;
+    if(serviceLine != undefined && serviceLine !=null && userID!= undefined && userID !=null){
+      if (this.bufferArray.length > 0) {
+        this.bufferArray.forEach((bufferArrayList) => {
+          if(serviceLine === "HWC" && serviceLine ===bufferArrayList.serviceName && bufferArrayList.userID == userID){
+            result=true
+          }
+  
+  
+    });
+    }
+    }
+   
+return result
+}
 
 
 
@@ -1839,9 +1937,7 @@ export class WorkLocationMappingComponent implements OnInit {
 
   //   console.log('eSanjeevani:****PARTH', this.eSanjeevaniFlag); 
   // }
+  }
 
 
 
-
-
-}
