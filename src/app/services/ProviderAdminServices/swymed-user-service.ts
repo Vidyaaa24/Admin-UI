@@ -36,7 +36,7 @@ export class SwymedUserConfigurationService {
     getMappedUserDetails: any;
     getAllDesignationsUrl: any;
     getUserNameUrl: any;
-    getSwymedDomainUrl: any;
+    getVideoConsultationDomainUrl: any;
     saveSwymedUserDetailsUrl: any;
     updateUserDetailsUrl: any;
     mappingActivationDeactivationUrl: any;
@@ -49,7 +49,7 @@ export class SwymedUserConfigurationService {
         this.getMappedUserDetails = this.providerAdmin_base_url + 'swymed/getmappedUsers/';
         this.getAllDesignationsUrl = this.providerAdmin_base_url + 'm/getDesignation';
         this.getUserNameUrl = this.providerAdmin_base_url + '/swymed/getunmappedUser/';
-        this.getSwymedDomainUrl = this.providerAdmin_base_url + 'swymed/getdomain/';
+        this.getVideoConsultationDomainUrl = this.providerAdmin_base_url + 'swymed/getdomain/';
         this.saveSwymedUserDetailsUrl = this.providerAdmin_base_url + '/swymed/createUser';
         this.updateUserDetailsUrl = this.providerAdmin_base_url + 'swymed/editUser';
         this.mappingActivationDeactivationUrl = this.providerAdmin_base_url + '/swymed/deleteUser/';
@@ -73,9 +73,9 @@ export class SwymedUserConfigurationService {
             .map(this.handleSuccess)
             .catch(this.handleError)
     }
-    getSwymedDomain(serviceProviderID) {
+    getVideoConsultationDomain(serviceProviderID) {
         return this.httpSecurity
-            .post(this.getSwymedDomainUrl + serviceProviderID , { })
+            .post(this.getVideoConsultationDomainUrl + serviceProviderID , { })
             .map(this.handleSuccess)
             .catch(this.handleError)
     }
@@ -91,9 +91,9 @@ export class SwymedUserConfigurationService {
         .map(this.successHandler)
         .catch(this.handleError)
     }
-    mappingActivationDeactivation(userSwymedMapID, flag, modifiedBy) {
+    mappingActivationDeactivation(userVideoConsultationMapID, flag, modifiedBy) {
         return this.httpSecurity
-        .get(this.mappingActivationDeactivationUrl + userSwymedMapID + '/' + flag + '/' + modifiedBy, {})
+        .get(this.mappingActivationDeactivationUrl + userVideoConsultationMapID + '/' + flag + '/' + modifiedBy, {})
         .map(this.handleSuccess)
         .catch(this.handleError)
     }
