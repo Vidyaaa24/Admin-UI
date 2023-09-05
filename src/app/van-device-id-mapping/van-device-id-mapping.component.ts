@@ -107,7 +107,7 @@ export class VanDeviceIdMappingComponent implements OnInit {
       .subscribe(response => {
         if (response && response.statusCode === 200 && response.data) {
           let result = response.data.filter(item => {
-            if (item.serviceID === 4) {
+            if (item.serviceID === 4 || item.serviceID === 9) {
               return item;
             }
           });
@@ -298,7 +298,9 @@ export class VanDeviceIdMappingComponent implements OnInit {
     this.availableSpokeTypes.filter((spokeTypes) => {
       if (this.service.serviceName === "TM" && spokeTypes.vanTypeID === 3) {
         this.filteredSpokeTypes.push(spokeTypes);
-      } 
+      } else if (this.service.serviceName === "HWC" && spokeTypes.vanTypeID !== 3) {
+        this.filteredSpokeTypes.push(spokeTypes);
+      }
     })
    
     this.availableSpokes=[];
