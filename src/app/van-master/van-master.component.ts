@@ -193,9 +193,10 @@ export class VanComponent implements OnInit {
         this.availableVanTypes.filter((vanTypes) => {
             if (this.serviceline.serviceName == "TM" && vanTypes.vanTypeID == 3) {
                 this.filteredVanTypes.push(vanTypes);
-            } else {
-                if (this.serviceline.serviceName == "MMU" && vanTypes.vanTypeID != 3)
+            } else if (this.serviceline.serviceName == "MMU" && vanTypes.vanTypeID != 3){
                     this.filteredVanTypes.push(vanTypes);
+            } else if (this.serviceline.serviceName == "HWC" && vanTypes.vanTypeID != 3) {
+                this.filteredVanTypes.push(vanTypes);
             }
         })
     }
