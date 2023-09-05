@@ -98,7 +98,7 @@ export class WorkLocationMappingComponent implements OnInit {
 
 
 
-  @ViewChild('workplaceform') eForm: NgForm;
+ @ViewChild('workplaceform') eForm: NgForm;
   @ViewChild('workplaceeform') editWorkplaceForm: NgForm;
   showInOutBound = false;
   isInbound = false;
@@ -508,7 +508,7 @@ export class WorkLocationMappingComponent implements OnInit {
     // this.getUserName(this.serviceProviderID);
   }
 
-  activate(userID,serviceID, uSRMappingID, userDeactivated, providerServiceMappingDeleted) {
+  activate(userID,serviceID, uSRMappingID, userDeactivated, providerServiceMappingDeleted, stateID, workingDistrictID, blockID, roleID ) {
     
     if (userDeactivated) {
       this.alertService.alert('User is inactive');
@@ -546,7 +546,18 @@ export class WorkLocationMappingComponent implements OnInit {
        this.foundDuplicate = false;
           if( this.mappedWorkLocationsList.length!=0){
             this.mappedWorkLocationsList.forEach((mappedWorkLocations) => {
-              if(serviceID === 9 && serviceID === mappedWorkLocations.serviceID &&  mappedWorkLocations.userID == userID){
+              if((serviceID === 9 && serviceID === mappedWorkLocations.serviceID && stateID === mappedWorkLocations.stateID && workingDistrictID === mappedWorkLocations.workingDistrictID && blockID === mappedWorkLocations.blockID && mappedWorkLocations.userID == userID && uSRMappingID != mappedWorkLocations.uSRMappingID && roleID === mappedWorkLocations.roleID) ){
+                if (!mappedWorkLocations.userServciceRoleDeleted) {
+                  this.foundDuplicate = true;
+                   this.alertService.alert("Service Already Actiavted either with same demographic or with same role")
+                }
+              } 
+            });
+
+          }
+          if( this.mappedWorkLocationsList.length!=0){
+            this.mappedWorkLocationsList.forEach((mappedWorkLocations) => {
+              if((serviceID === 9 && serviceID === mappedWorkLocations.serviceID && stateID != mappedWorkLocations.stateID && workingDistrictID != mappedWorkLocations.workingDistrictID && blockID != mappedWorkLocations.blockID && mappedWorkLocations.userID == userID && uSRMappingID != mappedWorkLocations.uSRMappingID) ){
                 if (!mappedWorkLocations.userServciceRoleDeleted) {
                   this.foundDuplicate = true;
                    this.alertService.alert("Service Already Actiavted")
@@ -747,25 +758,80 @@ export class WorkLocationMappingComponent implements OnInit {
       // }
 
     }
+    else if(objectToBeAdded.serviceline.serviceName === "HWC"){
+      let result:boolean =this.checkHWCDuplicateBufferArray();
+      let result2:boolean = this. checkHWCDuplicateMainArray();
+      if(result === true || result2 == true){
+        this.alertService.alert("Same User Already Mapped with different State and District")
+      }
+      else{
+        if (objectToBeAdded.role.length > 0) {
+          if (objectToBeAdded.role.length == 1) {
+            for (let a = 0; a < objectToBeAdded.role.length; a++) {
+             
+              let obj = {
+                'roleID1': objectToBeAdded.role[a].roleID,
+                'roleName': objectToBeAdded.role[a].roleName,
+                'screenName': objectToBeAdded.role[a].screenName
+              }
+              // roleArray.push(obj);
+           
+                   this.setWorkLocationObject(objectToBeAdded,obj,false,false);
+            
+              
+            }
+    
+          } else {
+            if (objectToBeAdded.role.length > 1) {
+              for (let i = 0; i < objectToBeAdded.role.length; i++) {
+                if (objectToBeAdded.role[i].screenName == 'TC Specialist' || objectToBeAdded.role[i].screenName == 'Supervisor') {
+                  this.Role = null;
+                  // roleArray = [];
+                  this.alertService.alert('Invaild role mapping');
+                  break;
+                } else {
+                  let obj = {
+                    'roleID1': objectToBeAdded.role[i].roleID,
+                    'roleName': objectToBeAdded.role[i].roleName,
+                    'screenName': objectToBeAdded.role[i].screenName
+                  }
+                  // roleArray.push(obj);
+                 
+                  this.setWorkLocationObject(objectToBeAdded,obj,false,false);
+                
+                }
+    
+              }
+            }
+          }
+         
+            
+            this.resetAllArrays();
+    
+          
+    
+        }
+        if (this.bufferArray.length > 0) {
+          this.eForm.resetForm();
+          this.disableSelectRoles = false;
+        }
+        console.log("Result Array",this.bufferArray)
+        
+      }
+    }
     else {
-
       if (objectToBeAdded.role.length > 0) {
         if (objectToBeAdded.role.length == 1) {
           for (let a = 0; a < objectToBeAdded.role.length; a++) {
-
             let obj = {
               'roleID1': objectToBeAdded.role[a].roleID,
               'roleName': objectToBeAdded.role[a].roleName,
               'screenName': objectToBeAdded.role[a].screenName,
-              'isSanjeevani': ((objectToBeAdded.serviceline.serviceName === "TM" || objectToBeAdded.serviceline.serviceName === "HWC" ) && objectToBeAdded.role[a].roleName === "Nurse") ? true : false
+              'isSanjeevani': ((objectToBeAdded.serviceline.serviceName === "TM" || objectToBeAdded.serviceline.serviceName === "HWC") && objectToBeAdded.role[a].roleName === "Nurse") ? true : false
             }
             // roleArray.push(obj);
-
             this.setWorkLocationObject(objectToBeAdded, obj, false, false);
-
-
           }
-
         } else {
           if (objectToBeAdded.role.length > 1) {
             for (let i = 0; i < objectToBeAdded.role.length; i++) {
@@ -781,57 +847,76 @@ export class WorkLocationMappingComponent implements OnInit {
                   'screenName': objectToBeAdded.role[i].screenName,
                   'isSanjeevani': ((objectToBeAdded.serviceline.serviceName === "TM" || objectToBeAdded.serviceline.serviceName === "HWC") && objectToBeAdded.role[i].roleName === "Nurse") ? true : false
                 }
+
                 // roleArray.push(obj);
 
                 this.setWorkLocationObject(objectToBeAdded, obj, false, false);
-
               }
 
             }
+
           }
+
         }
 
-
         this.resetAllArrays();
-
-
-
       }
+
       if (this.bufferArray.length > 0) {
         this.eForm.resetForm();
         this.disableSelectRoles = false;
       }
       console.log("Result Array", this.bufferArray)
 
-
-
     }
 
+ 
+
     // if (objectToBeAdded.Servicevillage == 1) {
+
     //   for (let a = 0; a < objectToBeAdded.Servicevillage; a++) {
 
+ 
+
     //     let villageObj = {
+
     //       // 'roleID1': objectToBeAdded.role[a].roleID,
+
     //       // 'roleName': objectToBeAdded.role[a].roleName,
+
     //       // 'screenName': objectToBeAdded.role[a].screenName
+
     //       'blockID': this.Servicevillage.blockID,
+
     //       'blockName': this.Servicevillage.blockName,
+
     //       'villageName': this.Servicevillage.villageName,
+
     //     }
+
     //     // roleArray.push(obj);
+
+ 
 
     //          this.setWorkLocationObject(objectToBeAdded,obj,false,false);
 
+ 
+
+ 
 
     //   }
 
-    // } 
+ 
+
     // }
+
+    // }
+
   }
+
   setWorkLocationObject(objectToBeAdded, obj, InboundValue, OnboundValue) {
     let villageIDArr = [];
     let villageNameArr = [];
-
     // villageArr.push(villageObj);
     let roleArr = [];
     roleArr.push(obj);
@@ -844,42 +929,80 @@ export class WorkLocationMappingComponent implements OnInit {
     let allRolesArr = [];
     for (let i = 0; i < roleArr.length; i++) {
       allRolesArr.push(roleArr[i].isSanjeevani)
+
       // allRolesArr.push({"issanjeevani":roleArr[i].isSanjeevani})
+
     }
+
     // let isRoleFlag = false;
+
     // for(let i=0;i<objectToBeAdded.role.length;i++){
+
     //   if(objectToBeAdded.role[i].roleName==='Nurse'){
+
     //     isRoleArr.push(true);
+
     //     isRoleFlag = true;
+
     //   }
+
     //   else{
+
     //     isRoleArr.push(false);
+
     //   }
+
     // }
+
     // if(objectToBeAdded.role!=undefined){
+
     //   objectToBeAdded.role.filter(item =>{
+
     //     isRoleArr.push(item.roleName);
+
     //   })
+
     // }
+
     //  let isRole = false;
 
+ 
+
     // for(let i=0;i<objectToBeAdded.role.length;i++){
+
     //     if(objectToBeAdded.role[i].roleName==='Nurse'){
+
     //       isRole=true;
+
     //       break;
+
     //     }
+
     // }
 
+ 
+
+ 
 
     // for(let i=0;i<objectToBeAdded.length;i++){
+
     //   villageNameArr = objectToBeAdded.Servicevillage.filter((item )=>{
+
     //     if(villageNameArr == item.villageName){
+
     //       villageNameArr.push(item.villageName);
+
+ 
 
     //     }
 
+ 
+
     //   })
+
     // }
+
+ 
 
     const workLocationObj = {
       'previleges': [],
@@ -888,6 +1011,7 @@ export class WorkLocationMappingComponent implements OnInit {
       'serviceID': objectToBeAdded.serviceline.serviceID,
       'serviceName': objectToBeAdded.serviceline.serviceName,
       // 'stateName': objectToBeAdded.state ? objectToBeAdded.state.stateName : '-',
+
       // 'district': objectToBeAdded.district ? objectToBeAdded.district.districtName : '-',
       'blockName': (objectToBeAdded.Serviceblock != undefined && objectToBeAdded.Serviceblock.blockName != undefined && objectToBeAdded.Serviceblock.blockName != "" && objectToBeAdded.Serviceblock.blockName != null) ? objectToBeAdded.Serviceblock.blockName : null,
       'blockID': (objectToBeAdded.Serviceblock != undefined && objectToBeAdded.Serviceblock.blockID != undefined && objectToBeAdded.Serviceblock.blockID != null) ? objectToBeAdded.Serviceblock.blockID : null,
@@ -904,57 +1028,63 @@ export class WorkLocationMappingComponent implements OnInit {
       'createdBy': this.createdBy,
       'workingLocationID': objectToBeAdded.worklocation.pSAddMapID,
       'isSanjeevani': allRolesArr
-
     };
-
     if (objectToBeAdded.state) {
       workLocationObj['stateName'] = objectToBeAdded.state.stateName;
     }
+
     // else if(objectToBeAdded.Serviceblock.blockName===null && villageNameArr===null){
+
     //     this.blockTableFlag = true;
+
     //     this.villageTableFlag = true;
 
+ 
+
     // }
+
     else {
       workLocationObj['stateName'] = 'All States';
     }
-
     if (objectToBeAdded.district != undefined) {
       workLocationObj['district'] = objectToBeAdded.district.districtName;
     }
     else {
       workLocationObj['district'] = null;
     }
-
-
-
-
-    this.bufferArray.push(workLocationObj);
-
-
+    this.bufferArray.push(workLocationObj)
 
   }
 
   resetAllArrays() {
+
     this.states_array = [];
+
     this.districts_array = [];
+
     this.workLocationsList = [];
+
     this.availableRoles = [];
+
     this.RolesList = [];
+
     this.showInOutBound = false;
+
     this.eSanjivaniFlag = false;
+
     // this.eSanjeevaniFlag=false;
+
   }
+
   deleteRow(i, serviceID, providerServiceMapID, userID) {
     this.bufferArray.splice(i, 1);
     this.getAllRoles(serviceID, providerServiceMapID, userID);
     this.availableRoles = [];
     this.RolesList = [];
-
   }
+
   removeRole(rowIndex, roleIndex) {
     this.bufferArray[rowIndex].roleID1.splice(roleIndex, 1);
-
     this.getAllRoles(this.bufferArray[rowIndex].serviceID, this.bufferArray[rowIndex].providerServiceMapID, this.bufferArray[rowIndex].userID);
     if (this.bufferArray[rowIndex].roleID1.length === 0) {
       this.bufferArray.splice(rowIndex, 1);
@@ -964,11 +1094,11 @@ export class WorkLocationMappingComponent implements OnInit {
   saveWorkLocations() {
     console.log(this.bufferArray, 'Request Object');
     let requestArray = [];
-
     let workLocationObj = {
-      'previleges': [
-        {
 
+      'previleges': [
+
+        {
           'ID': [
             {
               'roleID': '',
@@ -981,14 +1111,13 @@ export class WorkLocationMappingComponent implements OnInit {
           'workingLocationID': '',
           'blockID': '',
           'blockName': '',
-
         }
       ],
       'userID': '',
       'createdBy': '',
       'serviceProviderID': this.serviceProviderID
+ }
 
-    }
     for (let i = 0; i < this.bufferArray.length; i++) {
       let allRoleArr = [];
       if (this.Role != undefined) {
@@ -996,497 +1125,996 @@ export class WorkLocationMappingComponent implements OnInit {
           allRoleArr.push(item.roleName);
         })
       }
-
       let workLocationObj = {
+
         // "is1097": this.bufferArray[i].serviceName == "1097" ? true : false,
+
         'previleges': [
           {
             'ID': [
+
               {
+
                 'roleID': this.bufferArray[i].roleID1[0].roleID1,
+
                 'isSanjeevani': this.bufferArray[i].isSanjeevani[0],
+
                 'inbound': this.bufferArray[i].serviceName == "1097" ? this.bufferArray[i].Inbound : null,
+
                 'outbound': this.bufferArray[i].serviceName == "1097" ? this.bufferArray[i].Outbound : null
+
               }
+
             ],
+
             'providerServiceMapID': this.bufferArray[i].providerServiceMapID,
+
             'workingLocationID': this.bufferArray[i].workingLocationID,
+
             'blockID': this.bufferArray[i].blockID,
+
             'blockName': this.bufferArray[i].blockName,
+
             'villageID':
+
               this.bufferArray[i].villageID,
+
             'villageName':
+
               this.bufferArray[i].villageName,
+
           }
+
         ],
+
         'userID': this.bufferArray[i].userID,
+
         'createdBy': this.createdBy,
+
         'serviceProviderID': this.serviceProviderID
 
+ 
+
       }
+
+ 
 
       requestArray.push(workLocationObj);
 
+ 
+
+ 
 
     }
+
     console.log(requestArray, 'after modification array');
+
     this.bufferArray = [];
+
     this.worklocationmapping.SaveWorkLocationMapping(requestArray)
+
       .subscribe(response => {
+
         console.log(response, 'after successful mapping of work-location');
+
         this.alertService.alert('Mapping saved successfully', 'success');
+
         this.getAllMappedWorkLocations();
+
         this.eForm.resetForm();
+
         this.showTable();
+
         this.resetAllArrays();
+
         this.disableSelectRoles = false;
+
         this.filteredStates = [];
+
         // this.services_array = [];
+
         this.bufferArray = [];
+
       }, err => {
+
         console.log(err, 'ERROR');
+
         console.log(err, 'error');
+
       });
+
   }
+
+ 
 
   //################### EDIT SECTION ##########################
 
+ 
+
+ 
 
   userID_duringEdit: any;
+
   stateID_duringEdit: any;
+
   providerServiceMapID_duringEdit: any;
+
   district_duringEdit: any;
+
   workLocationID_duringEdit: any;
+
   roleID_duringEdit: any;
+
   serviceID_duringEdit: any;
+
   isInboundEdit = false;
+
   isOutboundEdit = false;
+
   isNational_edit = false;
 
+ 
+
   set_currentPSM_ID_duringEdit(psmID) {
+
     this.providerServiceMapID_duringEdit = psmID;
+
   }
+
+ 
 
   editRow(rowObject) {
 
+ 
+
     this.showEditForm();
+
     this.edit = true;
+
     this.disableUsername = true;
+
     this.edit_Details = rowObject;
+
     this.userID_duringEdit = rowObject.userID;
+
     console.log('TO BE EDITED REQ OBJ', this.edit_Details);
+
     this.uSRMappingID = rowObject.uSRMappingID;
+
     this.workLocationID_duringEdit = parseInt(this.edit_Details.workingLocationID, 10);
+
     this.userID_duringEdit = this.edit_Details.userID;
+
     this.stateID_duringEdit = this.edit_Details.stateID;
+
     this.providerServiceMapID_duringEdit = this.edit_Details.providerServiceMapID;
+
     this.district_duringEdit = parseInt(this.edit_Details.workingDistrictID, 10);
+
     this.roleID_duringEdit = this.edit_Details.roleID;
+
     this.serviceID_duringEdit = this.edit_Details.serviceID;
+
     this.isInboundEdit = this.edit_Details.inbound;
+
     this.isSanjeevani = this.edit_Details.isSanjeevani;
+
     this.isOutboundEdit = this.edit_Details.outbound;
+
     // this.isSanjeevani=this.isSanjeevani;
 
+ 
+
+ 
 
     if (this.edit_Details.serviceName === "1097" && !(this.edit_Details.roleName.toLowerCase() === "supervisor")) {
+
       this.showInOutBoundEdit = true;
 
+ 
+
     }
+
+ 
 
     else if ((this.edit_Details.serviceName === "TM" || this.edit_Details.serviceName === "HWC") && this.edit_Details.roleName.toLowerCase() === "nurse") {
+
       if (this.edit_Details.isSanjeevani !== undefined && this.edit_Details.isSanjeevani !== null && this.edit_Details.isSanjeevani == true) {
+
         this.eSanjivaniEditFlag = true;
+
         this.eSanjeevaniEdit = true;
+
       }
-      
+
+     
+
       else {
+
         this.eSanjivaniEditFlag = true;
+
         this.eSanjeevaniEdit = false;
+
       }
+
       // this.eSanjivaniEditFlag=true;
+
       // this.eSanjeevaniEdit=true;
 
+ 
+
     }
 
+ 
+
     else {
+
       this.showInOutBoundEdit = false;
+
       this.eSanjivaniEditFlag = false;
+
       this.eSanjeevaniEdit = false;
+
     }
+
     this.getProviderServices(this.userID);
+
     this.checkService_forIsNational();
+
     // this.getProviderStates_duringEdit(this.serviceID_duringEdit, this.isNational_edit);
+
     this.getProviderStates_duringPatchEdit(this.serviceID_duringEdit, this.isNational_edit);
+
     if (this.edit_Details.stateID === undefined) {
+
       this.set_currentPSM_ID_duringEdit(this.edit_Details.providerServiceMapID);
+
       this.stateID_duringEdit = '';
+
       this.district_duringEdit = null;
+
       this.getAllWorkLocations_duringEdit2(this.states_array[0].stateID, this.serviceID_duringEdit, this.isNational_edit, this.district_duringEdit, this.providerServiceMapID_duringEdit, this.userID_duringEdit);
+
       // this.getAllRoles_duringEdit(this.serviceID_duringEdit, this.providerServiceMapID_duringEdit, this.userID_duringEdit);
+
     }
+
     else {
+
       this.getAllDistricts_duringEdit2(this.edit_Details.stateID, this.stateID_duringEdit, this.serviceID_duringEdit, this.isNational_edit, this.district_duringEdit, this.providerServiceMapID_duringEdit, this.userID_duringEdit);
+
       // this.getAllWorkLocations_duringEdit2(this.stateID_duringEdit, this.serviceID_duringEdit, this.isNational_edit, this.district_duringEdit,this.providerServiceMapID_duringEdit, this.userID_duringEdit);
+
       // this.getAllRoles_duringEdit(this.serviceID_duringEdit, this.providerServiceMapID_duringEdit, this.userID_duringEdit);
+
     }
 
+ 
+
+ 
 
   }
+
   getAllDistricts_duringEdit2(state: any, stateID: any, serviceID: any, isNational_edit, districtID, psmID, userID) {
+
     this.worklocationmapping.getAllDistricts(state)
+
       .subscribe(response => {
+
         if (response) {
+
           console.log(response, 'get all districts success handeler');
+
           this.districts_array = response;
+
           this.getAllWorkLocations_duringEdit2(stateID, serviceID, isNational_edit, districtID, psmID, userID);
+
           // this.getAllWorkLocations_duringEdit(this.userID_duringEdit, this.stateID_duringEdit, this.serviceID_duringEdit);
+
         }
+
       }, err => {
+
         console.log(err, 'error');
+
       });
+
   }
+
+ 
 
   getAllWorkLocations_duringEdit2(stateID: any, serviceID: any, isNational_edit, districtID, psmID, userID) {
+
     this.worklocationmapping.getAllWorkLocations(this.serviceProviderID, stateID, serviceID, isNational_edit, districtID)
+
       .subscribe(response => {
+
         if (response) {
+
           console.log(response, 'get all work locations success handeler edit');
+
           this.workLocationsList = response;
+
           this.getAllRoles_duringEdit2(serviceID, psmID, userID);
 
+ 
+
         }
+
       }, err => {
+
         console.log(err, 'error');
 
+ 
+
       });
+
   }
 
+ 
+
+ 
 
   getAllRoles_duringEdit2(serviceID, psmID, userID) {
+
     this.worklocationmapping.getAllRoles(psmID)
+
       .subscribe(response => {
+
         if (response) {
+
           console.log(response, 'get all roles success handeler');
+
           this.RolesList = response;
+
           this.checkExistance(serviceID, psmID, userID);
+
         }
+
         //on edit - populate roles
+
         if (this.edit_Details != undefined) {
+
           if (this.RolesList) {
+
             let edit_role = this.RolesList.filter((mappedRole) => {
+
               if (this.edit_Details.roleID == mappedRole.roleID) {
+
                 return mappedRole;
+
               }
+
             })[0];
+
             if (edit_role) {
+
               // this.roleID_duringEdit = edit_role;
+
               this.availableRoles.push(edit_role);
+
             }
+
           }
+
         }
+
       }, err => {
+
         console.log(err, 'error');
 
+ 
+
       });
+
   }
 
+ 
+
+ 
 
   checkService_forIsNational() {
+
     for (let i = 0; i < this.services_array.length; i++) {
+
       if (this.serviceID_duringEdit === this.services_array[i].serviceID && this.services_array[i].isNational) {
+
         this.isNational_edit = this.services_array[i].isNational;
+
         break;
+
       }
+
       else {
+
         this.isNational_edit = false;
+
       }
+
     }
+
   }
+
+ 
 
   setIsNational_edit(value) {
+
     this.isNational_edit = value;
+
   }
+
+ 
 
   getProviderServices_edit(userID) {
+
     this.worklocationmapping.getServices(this.userID)
+
       .subscribe(response => this.getServicesSuccessHandeler(response), err => {
+
         console.log(err, 'error');
+
       });
 
+ 
+
   }
+
+ 
 
   getServicesSuccessHandeler(response) {
+
     if (response) {
+
       console.log('Provider Services in State', response);
+
       this.services_array = response;
 
+ 
+
     }
+
   }
+
+ 
 
   getProviderStates_duringEdit(serviceID, isNational) {
+
     this.worklocationmapping.getStates(this.userID, serviceID, isNational).
+
       subscribe(response => this.getStatesSuccessHandeler_duringEdit(serviceID, response, isNational, true), err => {
+
         console.log(err, 'error');
+
       });
+
   }
+
   getProviderStates_duringPatchEdit(serviceID, isNational) {
+
     this.worklocationmapping.getStates(this.userID, serviceID, isNational).
+
       subscribe(response => this.getStatesSuccessHandeler_duringEdit(serviceID, response, isNational, false), err => {
+
         console.log(err, 'error');
+
       });
+
   }
+
+ 
 
   getStatesSuccessHandeler_duringEdit(serviceID, response, isNational, blockVillageCheckFlag) {
+
     // this.stateID_duringEdit = '';
+
     if (response) {
+
       console.log(response, 'Provider States');
+
       this.states_array = response;
+
       this.districts_array = [];
+
       this.workLocationsList = [];
+
       this.RolesList = []
+
       this.availableRoles = [];
 
+ 
+
       if (isNational) {
+
         this.set_currentPSM_ID_duringEdit(this.states_array[0].providerServiceMapID);
+
         this.stateID_duringEdit = '';
+
         this.district_duringEdit = null;
+
         this.getAllWorkLocations_duringEdit(this.states_array[0].stateID, this.serviceID_duringEdit, this.isNational_edit, this.district_duringEdit);
+
         this.getAllRoles_duringEdit(serviceID, this.providerServiceMapID_duringEdit, this.userID_duringEdit);
 
+ 
+
       }
+
       if (blockVillageCheckFlag === true) {
+
         this.getAllDistricts_duringEdit(this.stateID_duringEdit);
+
       }
+
       else {
+
         this.getAllDistricts_duringPatchEdit(this.stateID_duringEdit);
+
       }
+
       // this.getProviderServicesInState_duringEdit(this.stateID_duringEdit);
 
+ 
+
+ 
 
     }
 
+ 
+
   }
+
+ 
 
   refresh1() {
+
     // refreshing ngModels of district, worklocation, servicelines, roles
+
     this.district_duringEdit = undefined;
+
     this.workLocationID_duringEdit = undefined;
+
     // this.serviceID_duringEdit = undefined;
+
     this.roleID_duringEdit = undefined;
+
   }
+
+ 
 
   refresh2() {
+
     this.refresh3();
+
   }
+
+ 
 
   refresh3() {
+
     // refreshing ngModels of worklocation, roles
+
     this.district_duringEdit = undefined;
+
     this.workLocationID_duringEdit = undefined;
-    this.roleID_duringEdit = undefined;
-  }
-  refresh5() {
-    // refreshing ngModels of worklocation, roles
-    this.workLocationID_duringEdit = undefined;
+
     this.roleID_duringEdit = undefined;
 
   }
+
+  refresh5() {
+
+    // refreshing ngModels of worklocation, roles
+
+    this.workLocationID_duringEdit = undefined;
+
+    this.roleID_duringEdit = undefined;
+
+ 
+
+  }
+
+ 
 
   refresh4() {
+
     // refreshing ngModels of roles
+
     this.roleID_duringEdit = undefined;
+
   }
 
+ 
 
+ 
+
+ 
 
   getAllDistricts_duringEdit(state: any) {
+
     this.worklocationmapping.getAllDistricts(state)
+
       .subscribe(response => {
+
         if (response) {
+
           console.log(response, 'get all districts success handeler');
+
           this.districts_array = response;
 
+ 
+
+ 
 
           // this.getAllWorkLocations_duringEdit(this.userID_duringEdit, this.stateID_duringEdit, this.serviceID_duringEdit);
+
         }
+
       }, err => {
+
         console.log(err, 'error');
+
       });
+
   }
 
+ 
+
   getAllDistricts_duringPatchEdit(state: any) {
+
     this.worklocationmapping.getAllDistricts(state)
+
       .subscribe(response => {
+
         if (response) {
+
           console.log(response, 'get all districts success handeler');
+
           this.districts_array = response;
+
           this.district_duringEdit = parseInt(this.edit_Details.workingDistrictID, 10);
+
+ 
 
            if(this.edit_Details.serviceName === "FLW" || this.edit_Details.serviceName === "HWC"){
 
+ 
+
             this.getEditBlockPatchMaster(this.district_duringEdit);
+
             // this.ServiceEditblock = this.edit_Details.blockID;
+
             // this.getEditVillagePatchMaster(this.ServiceEditblock);
+
+ 
 
             // this.villagename = this.edit_Details.villageName;
 
+ 
+
             // this.enableEditVillageFlag = true;
 
+ 
+
+ 
 
           }
 
+ 
 
+ 
 
+ 
 
+ 
+
+ 
 
           // this.getAllWorkLocations_duringEdit(this.userID_duringEdit, this.stateID_duringEdit, this.serviceID_duringEdit);
+
         }
+
       }, err => {
+
         console.log(err, 'error');
+
       });
+
   }
+
   getAllWorkLocations_duringEdit(stateID: any, serviceID: any, isNational_edit, districtID) {
+
     this.worklocationmapping.getAllWorkLocations(this.serviceProviderID, stateID, serviceID, isNational_edit, districtID)
+
       .subscribe(response => {
+
         if (response) {
+
           console.log(response, 'get all work locations success handeler edit');
+
           this.workLocationsList = response;
+
           //  this.getBlockMaster(districtID);
+
+ 
 
           // this.getAllRoles_duringEdit(this.providerServiceMapID_duringEdit);
 
+ 
+
         }
+
       }, err => {
+
         console.log(err, 'error');
+
+ 
 
       });
 
+ 
+
   }
 
+ 
+
+ 
 
   getAllRoles_duringEdit(serviceID, psmID, userID) {
+
     this.worklocationmapping.getAllRoles(psmID)
+
       .subscribe(response => {
+
         if (response) {
+
           console.log(response, 'get all roles success handeler');
+
           this.RolesList = response;
+
           this.checkExistance(serviceID, psmID, userID);
+
         }
+
         //on edit - populate roles
+
         if (this.edit_Details != undefined) {
+
           if (this.RolesList) {
+
             let edit_role = this.RolesList.filter((mappedRole) => {
+
               if (this.edit_Details.roleID == mappedRole.roleID) {
+
                 return mappedRole;
+
               }
+
             })[0];
+
             if (edit_role) {
+
               // this.roleID_duringEdit = edit_role;
+
               this.availableRoles.push(edit_role);
+
             }
+
           }
+
         }
+
       }, err => {
+
         console.log(err, 'error');
 
+ 
+
       });
+
   }
 
+ 
+
   updateWorkLocation(workLocations: any) {
+
     if (workLocations.serviceID === 1) {
+
       let updateRoleName = this.RolesList.filter((response) => {
+
         if (workLocations.role == response.roleID) {
+
           return response;
+
         }
+
       })[0];
+
       if ((this.isInboundEdit === false || this.isInboundEdit === null || this.isInboundEdit === undefined) && (this.isOutboundEdit === false || this.isOutboundEdit === null || this.isOutboundEdit === undefined) && !(updateRoleName.roleName.toLowerCase() === "supervisor")) {
+
         this.alertService.alert('Select checkbox Inbound/Outbound/Both');
+
       }
+
       else {
 
+ 
+
+ 
 
         this.updateData(workLocations, updateRoleName.roleName);
 
+ 
 
+ 
 
+ 
+
+ 
 
       }
+
     }
+
     else {
+
       let editVillageIdArray = [];
+
       if (this.serviceEditvillage != undefined && this.serviceEditvillage != null && this.serviceEditvillage.length > 0) {
+
         this.serviceEditvillage.filter(item => {
+
           this.editVillageArr.filter(itemValue => {
+
             if (item == itemValue.villageName) {
+
               editVillageIdArray.push(itemValue.districtBranchID);
+
             }
 
+ 
+
           })
+
         })
+
       }
 
+ 
+
       const langObj = {
+
         'uSRMappingID': this.uSRMappingID,
+
         'userID': this.userID_duringEdit,
+
         'roleID': workLocations.role,
+
         'isSanjeevani': this.isSanjeevani,
+
         'providerServiceMapID': this.providerServiceMapID_duringEdit,
+
         'blockID': this.ServiceEditblock,
+
         'blockName': this.blockname,
+
         'villageID': editVillageIdArray,
+
         // 'villageName':this.villagename,
+
         'villageName': this.serviceEditvillage,
+
         'workingLocationID': workLocations.worklocation,
+
         'modifiedBy': this.createdBy
+
         // 'uSRMappingID': this.uSRMappingID,
+
         // 'userID': this.userID_duringEdit,
+
         // 'roleID': workLocations.role,
+
         // 'providerServiceMapID': this.providerServiceMapID_duringEdit,
+
         // 'blockID':this.edit_Details.blockID,
+
         // 'blockName':this.edit_Details.blockName,
+
         // 'villageID':this.edit_Details.villageID,
+
         // 'villageName':this.edit_Details.villageName,
+
         // 'workingLocationID': workLocations.worklocation,
+
         // 'modifiedBy': this.createdBy
+
       };
+
       console.log('edited request object to be sent to API', langObj);
+
       this.worklocationmapping.UpdateWorkLocationMapping(langObj)
+
         .subscribe(response => {
+
           console.log(response, 'after successful mapping of work location to provider');
+
           this.alertService.alert('Mapping updated successfully', 'success');
+
           this.showTable();
+
           this.getAllMappedWorkLocations();
+
           this.bufferArray = [];
+
         }, err => {
+
           console.log(err, 'ERROR');
+
         });
+
     }
+
   }
+
   updateData(workLocations, roleValue) {
+
     const langObj = {
+
       'uSRMappingID': this.uSRMappingID,
+
       'userID': this.userID_duringEdit,
+
       'roleID': workLocations.role,
+
       'isSanjeevani': this.isSanjeevani,
+
       'inbound': roleValue.toLowerCase() === "supervisor" ? false : this.isInboundEdit,
+
       'outbound': roleValue.toLowerCase() === "supervisor" ? false : this.isOutboundEdit,
+
       'providerServiceMapID': this.providerServiceMapID_duringEdit,
+
       'workingLocationID': workLocations.worklocation,
+
       'modifiedBy': this.createdBy
+
     };
+
     console.log('edited request object to be sent to API', langObj);
+
     this.worklocationmapping.UpdateWorkLocationMapping(langObj)
+
       .subscribe(response => {
+
         console.log(response, 'after successful mapping of work location to provider');
+
         this.alertService.alert('Mapping updated successfully', 'success');
+
         this.showTable();
+
         this.getAllMappedWorkLocations();
+
         this.bufferArray = [];
+
       }, err => {
+
         console.log(err, 'ERROR');
+
       });
+
   }
+checkHWCDuplicateMainArrayForEditScreen(workLocations: any){
+let result = false;
+    if( this.mappedWorkLocationsList.length!=0){
+      this.mappedWorkLocationsList.forEach((mappedWorkLocations) => {
+        if(mappedWorkLocations.serviceID === 9 && workLocations.state !== mappedWorkLocations.stateID && workLocations.district != mappedWorkLocations.workingDistrictID && workLocations.ServiceEditblock != mappedWorkLocations.blockID && mappedWorkLocations.userID == this.userID_duringEdit && mappedWorkLocations.uSRMappingID != this.uSRMappingID){
+          if (!mappedWorkLocations.userServciceRoleDeleted) {
+           result=true
+          }
+        } 
+      });
+    } 
+  return result;
+}
 
 
 
@@ -1825,54 +2453,55 @@ export class WorkLocationMappingComponent implements OnInit {
       this.isSanjeevani = true;
     }
   }
-  allowSingleTimeHWC(serviceLine,userID)
-  {
-    let value=this.checkHWCMappedInBufferTable(serviceLine,userID)
-    let value2=this.checkHWCMappedInMainTable(serviceLine,userID)
+//   allowSingleTimeHWC(serviceLine,userID)
+//   {
+//     let value=this.checkHWCMappedInBufferTable(serviceLine,userID)
+//     let value2=this.checkHWCMappedInMainTable(serviceLine,userID)
 
-    if(value == true || value2 == true){
-      this.Serviceline = {}
-     this.alertService.alert("Already Mapped")
+//     if(value == true || value2 == true){
+//       this.Serviceline = {}
+//      this.alertService.alert("Already Mapped")
      
      
-    }
+//     }
   
 
-
-}
-checkHWCMappedInMainTable(serviceLine,userID){
-  let result=false;
-  if(serviceLine != undefined && serviceLine !=null && userID!= undefined && userID !=null){
-    if( this.mappedWorkLocationsList.length!=0){
-      this.mappedWorkLocationsList.forEach((mappedWorkLocations) => {
-        if(serviceLine === "HWC" && serviceLine ===mappedWorkLocations.serviceName &&  mappedWorkLocations.userID == userID){
-          if (!mappedWorkLocations.userServciceRoleDeleted) {
-           result=true
-          }
-        } 
-      });
-    } 
+// }
+// checkHWCMappedInMainTable(serviceLine,userID){
+//   let result=false;
+//   if(serviceLine != undefined && serviceLine !=null && userID!= undefined && userID !=null){
+//     if( this.mappedWorkLocationsList.length!=0){
+//       this.mappedWorkLocationsList.forEach((mappedWorkLocations) => {
+//         if(serviceLine === "HWC" && serviceLine ===mappedWorkLocations.serviceName &&  mappedWorkLocations.userID == userID){
+//           if (!mappedWorkLocations.userServciceRoleDeleted) {
+//            result=true
+//           }
+//         } 
+//       });
+//     } 
     
-  }
-  return result;
-}
+//   }
+//   return result;
+// }
 
-  checkHWCMappedInBufferTable(serviceLine,userID){
-    let result=false;
-    if(serviceLine != undefined && serviceLine !=null && userID!= undefined && userID !=null){
-      if (this.bufferArray.length > 0) {
-        this.bufferArray.forEach((bufferArrayList) => {
-          if(serviceLine === "HWC" && serviceLine ===bufferArrayList.serviceName && bufferArrayList.userID == userID){
-            result=true
-          }
+//   checkHWCMappedInBufferTable(serviceLine,userID){
+//     let result=false;
+//     if(serviceLine != undefined && serviceLine !=null && userID!= undefined && userID !=null){
+//       if (this.bufferArray.length > 0) {
+//         this.bufferArray.forEach((bufferArrayList) => {
+//           if(serviceLine === "HWC" && serviceLine ===bufferArrayList.serviceName && bufferArrayList.userID == userID){
+//             result=true
+//           }
   
   
-    });
-    }
-    }
+//     });
+//     }
+//     }
    
-return result
-}
+// return result
+// }
+ // setUpdatedVillageName(villageID){
+  //   let villageEditIDArr =[];
 
 
 
@@ -1902,42 +2531,34 @@ return result
       this.eSanjivaniEditFlag = false;
 
   }
-  // handleEditSelectionChanges(){
-  //   let roleSanjArry=[];
-  //     if(this.roleID_duringEdit!=undefined){
-  //       this.roleID_duringEdit.filter(item => {
-  //         roleSanjArry.push(item.roleID);
-  //       })
-  //   }
-  //     if (this.serviceID_duringEdit.serviceName==='TM' && roleSanjArry.includes(1937)){
-  //       this.eSanjivaniEditFlag = true;
-  //     } 
-  //     else {
-  //       this.eSanjivaniEditFlag = false;
-  //     } 
 
-  // }
-
-
-
-
-  // handleEditSelectionChanges(){
-  //   this.eSanjivaniEditFlag = false;
-  //     if (this.serviceID_duringEdit.serviceName==='TM' && this.roleID_duringEdit[0].roleName=== 'Nurse') {
-  //       this.eSanjivaniEditFlag = true;
-  //     } 
-  //     else {
-  //       this.eSanjivaniEditFlag = false;
-  //     } 
-
-  // }
-
-  // onESanjeevaniEditChange(event: any){
-  //   this.eSanjeevaniFlag = event.checked || false;
-
-  //   console.log('eSanjeevani:****PARTH', this.eSanjeevaniFlag); 
-  // }
+  checkHWCDuplicateBufferArray(){
+    let result=false;
+      if (this.bufferArray.length > 0) {
+        this.bufferArray.forEach((bufferArrayList) => {
+          if(bufferArrayList.serviceName === 'HWC' && this.State.stateName != bufferArrayList.stateName && this.District.districtName != bufferArrayList.district && this.Serviceblock.blockID != bufferArrayList.blockID && bufferArrayList.userID == this.User.userID){
+            result=true
+          }
+  
+  
+    });
+    }   
+return result
+}
+checkHWCDuplicateMainArray(){
+  let result=false;
+  
+    if( this.mappedWorkLocationsList.length!=0){
+      this.mappedWorkLocationsList.forEach((mappedWorkLocations) => {
+        if(mappedWorkLocations.serviceName === 'HWC' && this.State.stateName !== mappedWorkLocations.stateName && this.District.districtName != mappedWorkLocations.workingDistrictName && this.Serviceblock.blockID != mappedWorkLocations.blockID && mappedWorkLocations.userID == this.User.userID){
+          if (!mappedWorkLocations.userServciceRoleDeleted) {
+           result=true
+          }
+        } 
+      });
+    } 
+  return result;
+}
+  
+  
   }
-
-
-
