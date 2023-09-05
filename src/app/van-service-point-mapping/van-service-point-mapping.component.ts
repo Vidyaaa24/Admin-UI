@@ -240,9 +240,10 @@ export class VanServicePointMappingComponent implements OnInit {
     this.availableVanTypes.filter((vanTypes) => {
       if (this.service.serviceName == "TM" && vanTypes.vanTypeID == 3) {
         this.filteredVanTypes.push(vanTypes);
-      } else {
-        if (this.service.serviceName == "MMU" && vanTypes.vanTypeID != 3)
+      } else if (this.service.serviceName == "MMU" && vanTypes.vanTypeID != 3){
           this.filteredVanTypes.push(vanTypes);
+      }  else if (this.service.serviceName == "HWC" && vanTypes.vanTypeID != 3){
+        this.filteredVanTypes.push(vanTypes);
       }
     })
     this.availableVanServicePointMappings = [];
