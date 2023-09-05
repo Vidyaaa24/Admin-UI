@@ -549,7 +549,6 @@ export class WorkLocationMappingComponent implements OnInit {
               if((serviceID === 9 && serviceID === mappedWorkLocations.serviceID && stateID === mappedWorkLocations.stateID && workingDistrictID === mappedWorkLocations.workingDistrictID && blockID === mappedWorkLocations.blockID && mappedWorkLocations.userID == userID && uSRMappingID != mappedWorkLocations.uSRMappingID && roleID === mappedWorkLocations.roleID) ){
                 if (!mappedWorkLocations.userServciceRoleDeleted) {
                   this.foundDuplicate = true;
-                   this.alertService.alert("Service Already Actiavted either with same demographic or with same role")
                 }
               } 
             });
@@ -560,7 +559,6 @@ export class WorkLocationMappingComponent implements OnInit {
               if((serviceID === 9 && serviceID === mappedWorkLocations.serviceID && stateID != mappedWorkLocations.stateID && workingDistrictID != mappedWorkLocations.workingDistrictID && blockID != mappedWorkLocations.blockID && mappedWorkLocations.userID == userID && uSRMappingID != mappedWorkLocations.uSRMappingID) ){
                 if (!mappedWorkLocations.userServciceRoleDeleted) {
                   this.foundDuplicate = true;
-                   this.alertService.alert("Service Already Actiavted")
                 }
               } 
             });
@@ -588,6 +586,10 @@ export class WorkLocationMappingComponent implements OnInit {
                     });
               }
             });
+          }
+          else{
+            this.alertService.alert("Service Already Actiavted either with same demographic or with same role")
+
           }
 
       }
