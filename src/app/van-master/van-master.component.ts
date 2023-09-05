@@ -265,9 +265,9 @@ export class VanComponent implements OnInit {
         this.vanObj.providerServiceMapID = this.searchStateID.providerServiceMapID;
         this.vanObj.vanTypeID = formValues.vanTypeID.split("-")[0];
         this.vanObj.vanType = formValues.vanTypeID.split("-")[1];
-        this.vanObj.swymedDomain = formValues.domain;
-        this.vanObj.swymedEmail = formValues.sEmail;
-        this.vanObj.swymedID = formValues.sID;
+        this.vanObj.videoConsultationDomain = formValues.domain;
+        this.vanObj.videoConsultationEmail = formValues.sEmail;
+        this.vanObj.videoConsultationID = formValues.sID;
         this.vanObj.createdBy = this.createdBy;
         this.checkDuplicates(this.vanObj);
         //this.vanList.push(this.vanObj);
@@ -384,9 +384,9 @@ export class VanComponent implements OnInit {
         this.vanID = van.vanID;
         this.vanName = van.vanName
         this.vehicalNo = van.vehicalNo;
-        this.domain = van.swymedDomain;
-        this.sEmail = van.swymedEmail;
-        this.sID = van.swymedID;
+        this.domain = van.videoConsultationDomain;
+        this.sEmail = van.videoConsultationEmail;
+        this.sID = van.videoConsultationID;
         this.vanTypeID = van.vanTypeID + "-" + van.vanType;
         this.stateID = van.stateID;
         // this.district = van.districtID;
@@ -407,9 +407,9 @@ export class VanComponent implements OnInit {
         this.dataObj.parkingPlaceID = this.parking_place.parkingPlaceID;
         this.dataObj.stateID = this.stateID;
         this.dataObj.providerServiceMapID = this.providerServiceMapID;
-        this.dataObj.swymedDomain = van.domain;
-        this.dataObj.swymedEmail = van.sEmail;
-        this.dataObj.swymedID = van.sID;
+        this.dataObj.videoConsultationDomain = van.domain;
+        this.dataObj.videoConsultationEmail = van.sEmail;
+        this.dataObj.videoConsultationID = van.sID;
         this.dataObj.modifiedBy = this.createdBy;
         this.vanMasterService.updateVanData(this.dataObj).subscribe(response => this.updateHandler(response));
 
