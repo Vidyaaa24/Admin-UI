@@ -496,7 +496,7 @@ export class WorkLocationMappingComponent implements OnInit {
     // this.getUserName(this.serviceProviderID);
   }
 
-  activate(userID,serviceID, uSRMappingID, userDeactivated, providerServiceMappingDeleted) {
+  activate(userID,serviceID, uSRMappingID, userDeactivated, providerServiceMappingDeleted, stateID, workingDistrictID, blockID, roleID ) {
     
     if (userDeactivated) {
       this.alertService.alert('User is inactive');
@@ -534,7 +534,18 @@ export class WorkLocationMappingComponent implements OnInit {
        this.foundDuplicate = false;
           if( this.mappedWorkLocationsList.length!=0){
             this.mappedWorkLocationsList.forEach((mappedWorkLocations) => {
-              if(serviceID === 9 && serviceID === mappedWorkLocations.serviceID &&  mappedWorkLocations.userID == userID){
+              if((serviceID === 9 && serviceID === mappedWorkLocations.serviceID && stateID === mappedWorkLocations.stateID && workingDistrictID === mappedWorkLocations.workingDistrictID && blockID === mappedWorkLocations.blockID && mappedWorkLocations.userID == userID && uSRMappingID != mappedWorkLocations.uSRMappingID && roleID === mappedWorkLocations.roleID) ){
+                if (!mappedWorkLocations.userServciceRoleDeleted) {
+                  this.foundDuplicate = true;
+                   this.alertService.alert("Service Already Actiavted either with same demographic or with same role")
+                }
+              } 
+            });
+
+          }
+          if( this.mappedWorkLocationsList.length!=0){
+            this.mappedWorkLocationsList.forEach((mappedWorkLocations) => {
+              if((serviceID === 9 && serviceID === mappedWorkLocations.serviceID && stateID != mappedWorkLocations.stateID && workingDistrictID != mappedWorkLocations.workingDistrictID && blockID != mappedWorkLocations.blockID && mappedWorkLocations.userID == userID && uSRMappingID != mappedWorkLocations.uSRMappingID) ){
                 if (!mappedWorkLocations.userServciceRoleDeleted) {
                   this.foundDuplicate = true;
                    this.alertService.alert("Service Already Actiavted")
@@ -737,6 +748,67 @@ export class WorkLocationMappingComponent implements OnInit {
       // }
 
     }
+    else if(objectToBeAdded.serviceline.serviceName === "HWC"){
+      let result:boolean =this.checkHWCDuplicateBufferArray();
+      let result2:boolean = this. checkHWCDuplicateMainArray();
+      if(result === true || result2 == true){
+        this.alertService.alert("Same User Already Mapped with different State and District")
+      }
+      else{
+        if (objectToBeAdded.role.length > 0) {
+          if (objectToBeAdded.role.length == 1) {
+            for (let a = 0; a < objectToBeAdded.role.length; a++) {
+             
+              let obj = {
+                'roleID1': objectToBeAdded.role[a].roleID,
+                'roleName': objectToBeAdded.role[a].roleName,
+                'screenName': objectToBeAdded.role[a].screenName
+              }
+              // roleArray.push(obj);
+           
+                   this.setWorkLocationObject(objectToBeAdded,obj,false,false);
+            
+              
+            }
+    
+          } else {
+            if (objectToBeAdded.role.length > 1) {
+              for (let i = 0; i < objectToBeAdded.role.length; i++) {
+                if (objectToBeAdded.role[i].screenName == 'TC Specialist' || objectToBeAdded.role[i].screenName == 'Supervisor') {
+                  this.Role = null;
+                  // roleArray = [];
+                  this.alertService.alert('Invaild role mapping');
+                  break;
+                } else {
+                  let obj = {
+                    'roleID1': objectToBeAdded.role[i].roleID,
+                    'roleName': objectToBeAdded.role[i].roleName,
+                    'screenName': objectToBeAdded.role[i].screenName
+                  }
+                  // roleArray.push(obj);
+                 
+                  this.setWorkLocationObject(objectToBeAdded,obj,false,false);
+                
+                }
+    
+              }
+            }
+          }
+         
+            
+            this.resetAllArrays();
+    
+          
+    
+        }
+        if (this.bufferArray.length > 0) {
+          this.eForm.resetForm();
+          this.disableSelectRoles = false;
+        }
+        console.log("Result Array",this.bufferArray)
+        
+      }
+    }
   else
   {
    
@@ -817,6 +889,37 @@ export class WorkLocationMappingComponent implements OnInit {
   // } 
   // }
   }
+
+
+
+  checkHWCDuplicateBufferArray(){
+    let result=false;
+      if (this.bufferArray.length > 0) {
+        this.bufferArray.forEach((bufferArrayList) => {
+          if(bufferArrayList.serviceName === 'HWC' && this.State.stateName != bufferArrayList.stateName && this.District.districtName != bufferArrayList.district && this.Serviceblock.blockID != bufferArrayList.blockID && bufferArrayList.userID == this.User.userID){
+            result=true
+          }
+  
+  
+    });
+    }   
+return result
+}
+checkHWCDuplicateMainArray(){
+  let result=false;
+  
+    if( this.mappedWorkLocationsList.length!=0){
+      this.mappedWorkLocationsList.forEach((mappedWorkLocations) => {
+        if(mappedWorkLocations.serviceName === 'HWC' && this.State.stateName !== mappedWorkLocations.stateName && this.District.districtName != mappedWorkLocations.workingDistrictName && this.Serviceblock.blockID != mappedWorkLocations.blockID && mappedWorkLocations.userID == this.User.userID){
+          if (!mappedWorkLocations.userServciceRoleDeleted) {
+           result=true
+          }
+        } 
+      });
+    } 
+  return result;
+}
+    
   setWorkLocationObject(objectToBeAdded,obj,InboundValue,OnboundValue)
   {
     let villageIDArr =[];
@@ -1329,6 +1432,8 @@ export class WorkLocationMappingComponent implements OnInit {
   }
 
   updateWorkLocation(workLocations: any) {
+    let duplicate: boolean = this.checkHWCDuplicateMainArrayForEditScreen(workLocations);
+ 
     if (workLocations.serviceID === 1) {
       let updateRoleName = this.RolesList.filter((response) => {
         if (workLocations.role == response.roleID) {
@@ -1341,14 +1446,15 @@ export class WorkLocationMappingComponent implements OnInit {
     }
     else
     {
-     
       
         this.updateData(workLocations,updateRoleName.roleName);
-      
-
      
 
     }
+   }
+
+   else if(workLocations.serviceID === 9 && duplicate == true){
+       this.alertService.alert("Same User already Mapped with different State")
    }
     else
     {
@@ -1423,6 +1529,20 @@ updateData(workLocations,roleValue)
     }, err => {
       console.log(err, 'ERROR');
     });
+}
+
+checkHWCDuplicateMainArrayForEditScreen(workLocations: any){
+let result = false;
+    if( this.mappedWorkLocationsList.length!=0){
+      this.mappedWorkLocationsList.forEach((mappedWorkLocations) => {
+        if(mappedWorkLocations.serviceID === 9 && workLocations.state !== mappedWorkLocations.stateID && workLocations.district != mappedWorkLocations.workingDistrictID && workLocations.ServiceEditblock != mappedWorkLocations.blockID && mappedWorkLocations.userID == this.userID_duringEdit && mappedWorkLocations.uSRMappingID != this.uSRMappingID){
+          if (!mappedWorkLocations.userServciceRoleDeleted) {
+           result=true
+          }
+        } 
+      });
+    } 
+  return result;
 }
 
 
@@ -1711,53 +1831,53 @@ updateData(workLocations,roleValue)
     this.blockname=blockname;
     
   }
-  allowSingleTimeHWC(serviceLine,userID)
-  {
-    let value=this.checkHWCMappedInBufferTable(serviceLine,userID)
-    let value2=this.checkHWCMappedInMainTable(serviceLine,userID)
+//   allowSingleTimeHWC(serviceLine,userID)
+//   {
+//     let value=this.checkHWCMappedInBufferTable(serviceLine,userID)
+//     let value2=this.checkHWCMappedInMainTable(serviceLine,userID)
 
-    if(value == true || value2 == true){
-      this.Serviceline = {}
-     this.alertService.alert("Already Mapped")
+//     if(value == true || value2 == true){
+//       this.Serviceline = {}
+//      this.alertService.alert("Already Mapped")
      
      
-    }
+//     }
   
 
-}
-checkHWCMappedInMainTable(serviceLine,userID){
-  let result=false;
-  if(serviceLine != undefined && serviceLine !=null && userID!= undefined && userID !=null){
-    if( this.mappedWorkLocationsList.length!=0){
-      this.mappedWorkLocationsList.forEach((mappedWorkLocations) => {
-        if(serviceLine === "HWC" && serviceLine ===mappedWorkLocations.serviceName &&  mappedWorkLocations.userID == userID){
-          if (!mappedWorkLocations.userServciceRoleDeleted) {
-           result=true
-          }
-        } 
-      });
-    } 
+// }
+// checkHWCMappedInMainTable(serviceLine,userID){
+//   let result=false;
+//   if(serviceLine != undefined && serviceLine !=null && userID!= undefined && userID !=null){
+//     if( this.mappedWorkLocationsList.length!=0){
+//       this.mappedWorkLocationsList.forEach((mappedWorkLocations) => {
+//         if(serviceLine === "HWC" && serviceLine ===mappedWorkLocations.serviceName &&  mappedWorkLocations.userID == userID){
+//           if (!mappedWorkLocations.userServciceRoleDeleted) {
+//            result=true
+//           }
+//         } 
+//       });
+//     } 
     
-  }
-  return result;
-}
+//   }
+//   return result;
+// }
 
-  checkHWCMappedInBufferTable(serviceLine,userID){
-    let result=false;
-    if(serviceLine != undefined && serviceLine !=null && userID!= undefined && userID !=null){
-      if (this.bufferArray.length > 0) {
-        this.bufferArray.forEach((bufferArrayList) => {
-          if(serviceLine === "HWC" && serviceLine ===bufferArrayList.serviceName && bufferArrayList.userID == userID){
-            result=true
-          }
+//   checkHWCMappedInBufferTable(serviceLine,userID){
+//     let result=false;
+//     if(serviceLine != undefined && serviceLine !=null && userID!= undefined && userID !=null){
+//       if (this.bufferArray.length > 0) {
+//         this.bufferArray.forEach((bufferArrayList) => {
+//           if(serviceLine === "HWC" && serviceLine ===bufferArrayList.serviceName && bufferArrayList.userID == userID){
+//             result=true
+//           }
   
   
-    });
-    }
-    }
+//     });
+//     }
+//     }
    
-return result
-}
+// return result
+// }
  // setUpdatedVillageName(villageID){
   //   let villageEditIDArr =[];
 
