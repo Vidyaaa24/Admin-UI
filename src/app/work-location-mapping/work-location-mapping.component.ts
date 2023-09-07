@@ -2425,25 +2425,13 @@ let result = false;
     let roleSanjArry = [];
     if (this.Role != undefined) {
       this.Role.filter(item => {
-        roleSanjArry.push(item.roleName);
+        roleSanjArry.push(item.roleName.toLowerCase());
       })
     }
 
-    if ((this.Serviceline.serviceName === 'TM' || this.Serviceline.serviceName === 'HWC') && roleSanjArry.includes('Nurse')) {
+    if ((this.Serviceline.serviceName === 'TM' || this.Serviceline.serviceName === 'HWC') && roleSanjArry.includes('nurse')) {
       this.eSanjivaniFlag = true;
     }
-
-    // for(let i=0;i<roleSanjArry.length;i++){
-    //   if(this.Serviceline.serviceName==='TM' && roleSanjArry[i]==='Nurse'){
-    //     this.eSanjivaniFlag = true;
-    //   }
-
-    //   else{
-    //     this.eSanjivaniFlag = false;
-    //   }
-    // }
-
-
 
   }
 
