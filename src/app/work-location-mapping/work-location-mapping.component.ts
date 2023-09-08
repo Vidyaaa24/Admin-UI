@@ -736,7 +736,8 @@ export class WorkLocationMappingComponent implements OnInit {
         }
         console.log("Result Array", this.bufferArray)
       }
-    } else if (objectToBeAdded.serviceline.serviceName === "ECD") {
+    } 
+    else if (objectToBeAdded.serviceline.serviceName === "ECD") {
       // for (let a = 0; a < objectToBeAdded.role.length; a++) {
       //   let obj = {
       //     'roleID1': objectToBeAdded.role[a].roleID,
@@ -770,19 +771,16 @@ export class WorkLocationMappingComponent implements OnInit {
         if (objectToBeAdded.role.length > 0) {
           if (objectToBeAdded.role.length == 1) {
             for (let a = 0; a < objectToBeAdded.role.length; a++) {
-             
               let obj = {
                 'roleID1': objectToBeAdded.role[a].roleID,
                 'roleName': objectToBeAdded.role[a].roleName,
-                'screenName': objectToBeAdded.role[a].screenName
+                'screenName': objectToBeAdded.role[a].screenName,
+                'isSanjeevani': (objectToBeAdded.serviceline.serviceName === "HWC" && objectToBeAdded.role[a].roleName.toLowerCase() === "nurse") ? true : false
+                
               }
               // roleArray.push(obj);
-           
-                   this.setWorkLocationObject(objectToBeAdded,obj,false,false);
-            
-              
+              this.setWorkLocationObject(objectToBeAdded, obj, false, false);
             }
-    
           } else {
             if (objectToBeAdded.role.length > 1) {
               for (let i = 0; i < objectToBeAdded.role.length; i++) {
@@ -795,32 +793,29 @@ export class WorkLocationMappingComponent implements OnInit {
                   let obj = {
                     'roleID1': objectToBeAdded.role[i].roleID,
                     'roleName': objectToBeAdded.role[i].roleName,
-                    'screenName': objectToBeAdded.role[i].screenName
+                    'screenName': objectToBeAdded.role[i].screenName,
+                    'isSanjeevani': (objectToBeAdded.serviceline.serviceName === "HWC" && objectToBeAdded.role[i].roleName.toLowerCase() === "nurse") ? true : false
                   }
                   // roleArray.push(obj);
-                 
-                  this.setWorkLocationObject(objectToBeAdded,obj,false,false);
-                
+                  this.setWorkLocationObject(objectToBeAdded, obj, false, false);
                 }
-    
               }
             }
           }
-         
-            
-            this.resetAllArrays();
-    
-          
-    
+          this.resetAllArrays();
         }
         if (this.bufferArray.length > 0) {
           this.eForm.resetForm();
           this.disableSelectRoles = false;
         }
-        console.log("Result Array",this.bufferArray)
-        
+
       }
+      
+      
+      
+    
     }
+
     else {
       if (objectToBeAdded.role.length > 0) {
         if (objectToBeAdded.role.length == 1) {
@@ -829,7 +824,7 @@ export class WorkLocationMappingComponent implements OnInit {
               'roleID1': objectToBeAdded.role[a].roleID,
               'roleName': objectToBeAdded.role[a].roleName,
               'screenName': objectToBeAdded.role[a].screenName,
-              'isSanjeevani': ((objectToBeAdded.serviceline.serviceName === "TM" || objectToBeAdded.serviceline.serviceName === "HWC") && objectToBeAdded.role[a].roleName === "Nurse") ? true : false
+              'isSanjeevani': (objectToBeAdded.serviceline.serviceName != "HWC" && objectToBeAdded.role[a].roleName.toLowerCase() != "nurse") ? false:true
             }
             // roleArray.push(obj);
             this.setWorkLocationObject(objectToBeAdded, obj, false, false);
@@ -847,7 +842,7 @@ export class WorkLocationMappingComponent implements OnInit {
                   'roleID1': objectToBeAdded.role[i].roleID,
                   'roleName': objectToBeAdded.role[i].roleName,
                   'screenName': objectToBeAdded.role[i].screenName,
-                  'isSanjeevani': ((objectToBeAdded.serviceline.serviceName === "TM" || objectToBeAdded.serviceline.serviceName === "HWC") && objectToBeAdded.role[i].roleName === "Nurse") ? true : false
+                  'isSanjeevani': (objectToBeAdded.serviceline.serviceName != "HWC" && objectToBeAdded.role[i].roleName.toLowerCase() != "nurse") ? false : true
                 }
 
                 // roleArray.push(obj);
@@ -1319,7 +1314,7 @@ export class WorkLocationMappingComponent implements OnInit {
 
  
 
-    else if ((this.edit_Details.serviceName === "TM" || this.edit_Details.serviceName === "HWC") && this.edit_Details.roleName.toLowerCase() === "nurse") {
+    else if (this.edit_Details.serviceName === "HWC" && this.edit_Details.roleName.toLowerCase() === "nurse") {
 
       if (this.edit_Details.isSanjeevani !== undefined && this.edit_Details.isSanjeevani !== null && this.edit_Details.isSanjeevani == true) {
 
@@ -1918,15 +1913,11 @@ export class WorkLocationMappingComponent implements OnInit {
  
 
   updateWorkLocation(workLocations: any) {
-
+    let duplicate: boolean = this.checkHWCDuplicateMainArrayForEditScreen(workLocations);
     if (workLocations.serviceID === 1) {
-
       let updateRoleName = this.RolesList.filter((response) => {
-
         if (workLocations.role == response.roleID) {
-
           return response;
-
         }
 
       })[0];
@@ -1938,24 +1929,15 @@ export class WorkLocationMappingComponent implements OnInit {
       }
 
       else {
-
- 
-
- 
-
         this.updateData(workLocations, updateRoleName.roleName);
-
- 
-
- 
-
- 
-
- 
 
       }
 
     }
+
+    else if(workLocations.serviceID === 9 && duplicate == true){
+      this.alertService.alert("Same User already Mapped with different State")
+  }
 
     else {
 
@@ -1972,9 +1954,6 @@ export class WorkLocationMappingComponent implements OnInit {
               editVillageIdArray.push(itemValue.districtBranchID);
 
             }
-
- 
-
           })
 
         })
@@ -2429,7 +2408,7 @@ let result = false;
       })
     }
 
-    if ((this.Serviceline.serviceName === 'TM' || this.Serviceline.serviceName === 'HWC') && roleSanjArry.includes('nurse')) {
+    if (this.Serviceline.serviceName === 'HWC' && roleSanjArry.includes('nurse')) {
       this.eSanjivaniFlag = true;
     }
 
