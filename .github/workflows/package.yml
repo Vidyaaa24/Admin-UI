@@ -1,0 +1,45 @@
+name: Package
+
+on:
+  push:
+    branches: [ "develop"]
+     
+  pull_request:
+     branches: [ "develop" ]
+    
+jobs:
+  Package:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Java
+        uses: actions/setup-java@v2
+        with:
+          java-version: '8'
+          distribution: 'adopt'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Build with NPM
+        run: |
+          npm install -g @angular/cli
+          npm install typescript@2.7.2 --save-dev
+          npm install
+          npm run build
+          npm run ng build --prod
+        
+      - name: Create WAR file 
+        run: jar -cvf adminui-v1.0.war -C dist .
+
+      - name: Upload WAR file as artifact
+        uses: actions/upload-artifact@v2 
+        with:
+          name: Admin-UI
+          path: adminui-v1.0.war  
