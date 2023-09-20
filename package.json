@@ -36,7 +36,7 @@
     "material-design-icons": "3.0.1",
     "md2": "0.0.18",
     "ngx-pagination": "^3.0.0",
-    "node-sass": "^9.0.0",
+    "node-sass": "^7.0.0",
     "rxjs": "5.4.3",
     "tether": "^1.4.0",
     "webpack": "3.11.0",
