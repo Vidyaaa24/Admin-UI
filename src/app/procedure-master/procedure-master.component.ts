@@ -98,7 +98,7 @@ export class ProcedureMasterComponent implements OnInit {
     // this.providerAdminRoleService.getStates(this.serviceProviderID)
     //   .subscribe(response => this.states = this.successhandeler(response));
     this.getProviderServices();
-    this.getIOTProcedure();
+    this.getDiagnosticProcedure();
   }
   getProviderServices() {
     this.stateandservices.getServices(this.userID)
@@ -513,8 +513,8 @@ export class ProcedureMasterComponent implements OnInit {
 
 
   // This is called for IOT
-  getIOTProcedure(){
-this.procedureMasterServiceService.getIOTProcedure().subscribe(response => {
+  getDiagnosticProcedure(){
+this.procedureMasterServiceService.getDiagnosticProcedure().subscribe(response => {
   this.iotProcedurearray = response;
 }, err => {
 });

@@ -125,7 +125,7 @@ export class ComponentMasterComponent implements OnInit {
     //   }
     //   );
     this.getProviderServices();
-    this.getIOTComponent();
+    this.getDiagnosticProcedureComponent();
   }
   getProviderServices() {
     this.stateandservices.getServices(this.userID)
@@ -739,9 +739,9 @@ else{
   }
 
 
-  getIOTComponent() {
+  getDiagnosticProcedureComponent() {
 
-    this.componentMasterServiceService.getIOTComponent().subscribe((res) => {
+    this.componentMasterServiceService.getDiagnosticProcedureComponent().subscribe((res) => {
         this.iotComponentArray =res;
       });
 
