@@ -125,7 +125,7 @@ export class ResetUserPasswordComponent implements OnInit {
 
 
   encryptWithIvSalt(salt, iv, passPhrase, plainText) {
-    let key = CryptoJS.PBKDF2(passPhrase, salt, { keySize: 256/32, iterations: 1000 });
+    let key = this.generateKey(salt, passPhrase);
     let encrypted = CryptoJS.AES.encrypt(plainText, key, {
       iv: CryptoJS.enc.Hex.parse(iv)
     });
