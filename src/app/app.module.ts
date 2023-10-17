@@ -316,6 +316,7 @@ import { TextAreaWithCopyPaste } from './directives/textarea/textAreaWithCopyPas
 import { MyMobileNumberWithCopyPaste } from './directives/MobileNumber/myMobileNumberWithCopyPaste.directive';
 import { DataMappingBlockSubcenterComponent } from './data-mapping-block-subcenter/data-mapping-block-subcenter.component';
 import { BlockSubcenterMappingService } from './services/ProviderAdminServices/block-subcenter-mapping-service';
+import { ServicelineCdssMapping } from './serviceline-cdss-mapping/servicelineCdssMapping.component';
 
 @NgModule({
   declarations: [
@@ -337,6 +338,7 @@ import { BlockSubcenterMappingService } from './services/ProviderAdminServices/b
     CommonDialogComponent, LoaderComponent, ServicePointVillageMapComponent,
     SeverityTypeComponent, FeedbackTypeComponent, EditFeedbackModal, EditFeedbackNatureModal,
     VanComponent, VanTypeComponent, VanServicePointMappingComponent,
+    ServicelineCdssMapping,
     EmployeeParkingPlaceMappingComponent, EditCategorySubcategoryComponent,
     FeedbackTypeMasterComponent, FeedbackComplaintNatureMasterComponent,
     InstituteDirectoryMasterComponent, EditInstituteDirectory, HospitalMasterComponent,
@@ -416,7 +418,8 @@ import { BlockSubcenterMappingService } from './services/ProviderAdminServices/b
     MyNameWithCopyPaste,
     MyMobileNumberWithCopyPaste,
     MyProviderNameWithCopyPaste,
-    DataMappingBlockSubcenterComponent
+    DataMappingBlockSubcenterComponent,
+    
   ],
 
   imports: [

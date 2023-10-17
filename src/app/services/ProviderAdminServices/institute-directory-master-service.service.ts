@@ -43,10 +43,12 @@ export class InstituteDirectoryMasterService {
 
 	get_InstituteDirectory_Url: any;
 	save_InstituteDirectory_Url: any;
+	save_Cdss_Mapping: any;
 	edit_InstituteDirectory_Url: any;
 	toggle_activate_InstituteDirectory_Url: any;
 	getServiceLines_new_url: any;
 	getStates_new_url: any;
+	get_Cdss_Url: any;
 
 	constructor(private http: SecurityInterceptedHttp,
 		public basepaths: ConfigService,
@@ -55,6 +57,8 @@ export class InstituteDirectoryMasterService {
 
 		this.get_InstituteDirectory_Url = this.admin_Base_Url + 'm/getInstituteDirectory';
 		this.save_InstituteDirectory_Url = this.admin_Base_Url + 'm/createInstituteDirectory';
+		this.save_Cdss_Mapping = this.admin_Base_Url+ 'uptsu/submit/cdss';
+		this.get_Cdss_Url = this.admin_Base_Url+ 'uptsu/getCdssData';
 		this.edit_InstituteDirectory_Url = this.admin_Base_Url + 'm/editInstituteDirectory';
 		this.toggle_activate_InstituteDirectory_Url = this.admin_Base_Url + 'm/deleteInstituteDirectory';
 
@@ -71,6 +75,21 @@ export class InstituteDirectoryMasterService {
 		return this.httpIntercept.post(this.getServiceLines_new_url, { 'userID': userID })
 			.map(this.handleState_n_ServiceSuccess)
 			.catch(this.handleError);
+	}
+	getServiceLinesNewCdss(userID) {
+		return this.httpIntercept.post(this.getServiceLines_new_url, { 'userID': userID })
+			.map(this.handleStateCdss)
+			.catch(this.handleError);
+	}
+
+	saveCdssMapping(reqObj){
+		console.log('save Institute Directory', reqObj);
+		return this.httpIntercept.post(this.save_Cdss_Mapping, reqObj).map(this.handleSuccess).catch(this.handleError);
+	}
+	getCdssDetails(providerServiceMapID) {
+		console.log('psmID', providerServiceMapID);
+		return this.httpIntercept.get(this.get_Cdss_Url + '/'+ providerServiceMapID,
+			).map(this.handleSuccess).catch(this.handleError);
 	}
 	getInstituteDirectory(providerServiceMapID) {
 		console.log('psmID', providerServiceMapID);
@@ -108,6 +127,18 @@ export class InstituteDirectoryMasterService {
 		let result = [];
 		result = response.json().data.filter(function (item) {
 			if (item.serviceID === 3 || item.serviceID === 1 || item.serviceID === 6) {
+				return item;
+			}
+		});
+		return result;
+	}
+
+	handleStateCdss(response: Response) {
+
+		console.log(response.json().data, 'role service file success response');
+		let result = [];
+		result = response.json().data.filter(function (item) {
+			if (item.serviceID === 4) {
 				return item;
 			}
 		});
