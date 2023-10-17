@@ -54,8 +54,9 @@ export class ServicelineCdssMapping implements OnInit {
         console.log("item", item);      
           return item;  
       })
-      // this.cdssServices = this.services[0].serviceName;
-      // this.service = this.cdssServices;
+      if(this.services !== null && this.services !== undefined && this.services.length > 0){
+        this.service = this.services[0].serviceID;
+      }
     }
     getStates(value) {
       let obj = {
