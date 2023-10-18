@@ -54,9 +54,6 @@ export class ServicelineCdssMapping implements OnInit {
         console.log("item", item);      
           return item;  
       })
-      if(this.services !== null && this.services !== undefined && this.services.length > 0){
-        this.service = this.services[0].serviceID;
-      }
     }
     getStates(value) {
       let obj = {
@@ -67,8 +64,6 @@ export class ServicelineCdssMapping implements OnInit {
       this.instituteDirectoryService.getStatesNew(obj).
         subscribe(response => this.getStatesSuccessHandeler(response, value), (err) => {
           console.log("error in fetching states", err);
-          this.serviceID = value.serviceID;
-          //this.alertService.alert(err, 'error');
         });
     }
 
