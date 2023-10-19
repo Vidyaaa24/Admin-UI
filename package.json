@@ -66,5 +66,6 @@
     "ts-node": "3.3.0",
     "tslint": "5.7.0",
     "typescript": "2.4.0"
-  }
+  },
+  "repository": "https://github.com/PSMRI/Admin-UI.git"
 }

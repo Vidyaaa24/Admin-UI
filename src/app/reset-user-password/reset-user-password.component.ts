@@ -68,6 +68,50 @@ export class ResetUserPasswordComponent implements OnInit {
     this.getAllUserName(this.serviceProviderID);
   }
 
+
+  class PasswordManager {
+  constructor(keySize, iterationCount, ivSize) {
+    this.keySize = keySize || 256; // Default to 256 bits
+    this.iterationCount = iterationCount || 10000; // Default to 10,000 iterations
+    this.ivSize = ivSize || 16; // Default to 16 bytes
+  }
+
+  getUserDetail(userName) {
+    console.log('getUserDetail', userName);
+    this.tableMode = true;
+    this.resetUserPasswordService.getUserDetail(userName)
+      .subscribe(response => {
+        this.userDetails = response;
+      }, err => {
+        console.error('Error', err); // Log error using console.error
+      });
+  }
+
+  generateKey(salt, passPhrase) {
+    return CryptoJS.PBKDF2(passPhrase, CryptoJS.enc.Hex.parse(salt), {
+      hasher: CryptoJS.algo.SHA512,
+      keySize: this.keySize / 32,
+      iterations: this.iterationCount
+    });
+  }
+
+  encryptWithIvSalt(salt, iv, passPhrase, plainText) {
+    let key = this.generateKey(salt, passPhrase);
+    let encrypted = CryptoJS.AES.encrypt(plainText, key, {
+      iv: CryptoJS.enc.Hex.parse(iv)
+    });
+    return encrypted.ciphertext.toString(CryptoJS.enc.Base64);
+  }
+
+  encrypt(passPhrase, plainText) {
+    let iv = CryptoJS.lib.WordArray.random(this.ivSize).toString(CryptoJS.enc.Hex);
+    let salt = CryptoJS.lib.WordArray.random(this.keySize / 8).toString(CryptoJS.enc.Hex);
+    let ciphertext = this.encryptWithIvSalt(salt, iv, passPhrase, plainText);
+    return salt + iv + ciphertext;
+  }
+}
+
+  
   /*Fetch all user name*/
   getAllUserName(serviceProviderID) {
     this.resetUserPasswordService.getUserList(serviceProviderID)
@@ -80,7 +124,7 @@ export class ResetUserPasswordComponent implements OnInit {
   }
 
   /*Fetch particular user detail*/
-  getUserDetail(userName) {
+  /*getUserDetail(userName) {
     console.log('getUserDetail', userName);
     this.tableMode = true;
     this.resetUserPasswordService.getUserDetail(userName)
@@ -137,8 +181,9 @@ export class ResetUserPasswordComponent implements OnInit {
     let salt = CryptoJS.lib.WordArray.random(this.keySize / 8).toString(CryptoJS.enc.Hex);
     let ciphertext = this.encryptWithIvSalt(salt, iv, passPhrase, plainText);
     return salt + iv + ciphertext;
-  }
+  } 
 
+*/
 
   /*Reset Password*/
   resetPassword(userName, password) {

@@ -125,12 +125,25 @@ export class loginContentClass implements OnInit {
 
 
   encryptWithIvSalt(salt, iv, passPhrase, plainText) {
+    let key = this.generateKeyWithPBKDF2(salt, passPhrase);
+    let encrypted = CryptoJS.AES.encrypt(plainText, key, {
+        iv: CryptoJS.enc.Hex.parse(iv),
+        mode: CryptoJS.mode.GCM,
+        padding: CryptoJS.pad.NoPadding
+    });
+    return {
+        ciphertext: encrypted.ciphertext.toString(CryptoJS.enc.Base64),
+        tag: encrypted.toString().substring(encrypted.toString().length - 32)
+    };
+  
+  
+  /*encryptWithIvSalt(salt, iv, passPhrase, plainText) {
     let key = this.generateKey(salt, passPhrase);
     let encrypted = CryptoJS.AES.encrypt(plainText, key, {
       iv: CryptoJS.enc.Hex.parse(iv)
     });
     return encrypted.ciphertext.toString(CryptoJS.enc.Base64);
-  }
+  }*/
 
   encrypt(passPhrase, plainText) {
     let iv = CryptoJS.lib.WordArray.random(this._ivSize / 8).toString(CryptoJS.enc.Hex);
